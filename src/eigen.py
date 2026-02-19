@@ -21,7 +21,7 @@ def build_2d_hamiltonian(
     """
     if not isinstance(N, int) or N < 2:
         raise ValueError("N must be an integer >= 2.")
-    if potential not in {"well", "harmonic"}:
+    if potential not in {"well", "harmonic", "doublewell"}:
         raise ValueError("potential must be 'well' or 'harmonic'.")
 
     dx = 1.0 / float(N)
@@ -54,6 +54,13 @@ def build_2d_hamiltonian(
             x, y = xy_from_ij(i, j)
             k = 4.0
             base = k * (x * x + y * y)
+        elif potential == "doublewell":
+            x, y = xy_from_ij(i, j)
+        # Double-well in x + weak harmonic in y
+            alpha = 80.0   # barrier strength (tune if you want)
+            x0 = 0.25      # well separation (in coordinate units)
+            beta = 4.0     # confinement in y
+            base = alpha * (x*x - x0*x0)**2 + beta * (y*y)
         else:
             base = 0.0
 
@@ -115,7 +122,7 @@ def parse_args():
         "--potential",
         type=str,
         default="well",
-        choices=["well", "harmonic"],
+        choices=["well", "harmonic", "doublewell"],
         help="Potential type.",
     )
     p.add_argument("--neigs", type=int, default=5, help="Number of lowest eigenvalues to print (1..N^2).")
